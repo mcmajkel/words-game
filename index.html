@@ -478,6 +478,15 @@
   <script src="wordsDatabase.js"></script>
 
   <script>
+    // Verify database is loaded
+    if (typeof wordsDatabase === 'undefined') {
+      console.error('ERROR: wordsDatabase failed to load. Check that wordsDatabase.js exists and is valid.');
+      console.log('Available global objects:', Object.keys(window).filter(k => k.includes('word')));
+    } else {
+      console.log('✓ wordsDatabase loaded successfully');
+      console.log('Categories:', Object.keys(wordsDatabase));
+    }
+
     // Map categories to English names for consistency
     const allCategories = ['Owoce', 'Warzywa', 'Zwierzęta', 'Auta', 'Kolory', 'Dom', 'Ubiór', 'Sport'];
     const categoryIcons = {Owoce: '🍎', Warzywa: '🥕', Zwierzęta: '🦁', Auta: '🚗', Kolory: '🎨', Dom: '🏠', Ubiór: '👕', Sport: '⚽'};
@@ -634,6 +643,7 @@
         return;
       }
       const list = getWordsForCurrent();
+      console.log('Checking:', {input: val, category: state.category, letter: state.letter, availableWords: list, found: list.includes(val)});
       if (list.includes(val)) {
         state.score += 1;
         scoreEl.textContent = state.score;
