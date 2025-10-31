@@ -17,9 +17,9 @@ A fun, interactive learning game for 5-year-old children to guess Polish words b
 ## 🚀 Quick Start
 
 ### Play Online
-Visit the live game: **[Polish Word Game](https://joyful-fairy-efb682.netlify.app/)**
+Visit the live game: **[Polish Word Game](https://jade-sunshine-33d783.netlify.app/)**
 
-Or use the short URL: **[tinyurl.com/polish-wordgame](https://tinyurl.com/polish-wordgame)**
+Or use the short URL: **[tinyurl.com/stasiozagadki](https://tinyurl.com/stasiozagadki)**
 
 ### Play Locally
 1. Clone or download this repository
