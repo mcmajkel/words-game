@@ -308,9 +308,56 @@
       opacity: 0.12;
     }
 
+    /* Mobile optimizations */
     @media (max-width: 860px) {
+      body { padding: 16px; }
+      .wrap { padding: 16px; margin: 0 auto; max-width: 100%; }
       .controls { grid-template-columns: 1fr; }
       .logo { width: 72px; height: 72px; font-size: 30px; }
+      header { gap: 12px; margin-bottom: 16px; }
+      h1 { font-size: 22px; }
+      .big-btn { font-size: 16px; padding: 14px; }
+      .status .big { font-size: 28px; }
+      .chip { font-size: 13px; padding: 6px 10px; }
+      .game-row { gap: 8px; }
+      input.answer { font-size: 16px; padding: 12px; }
+      button.check { padding: 12px 14px; font-size: 15px; }
+      .word-pill { font-size: 13px; padding: 6px 8px; }
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 12px; }
+      .wrap { padding: 12px; border-radius: 16px; border-width: 4px; }
+      header { flex-direction: column; text-align: center; gap: 8px; }
+      h1 { font-size: 20px; }
+      p.lead { font-size: 12px; }
+      .logo { width: 64px; height: 64px; font-size: 28px; }
+      .controls { gap: 12px; }
+      .big-btn { font-size: 15px; padding: 12px; gap: 8px; }
+      .card { padding: 14px; border-radius: 12px; }
+      .status { flex-direction: column; gap: 10px; }
+      .status .box { padding: 10px; }
+      .status .big { font-size: 24px; }
+      .status .label { font-size: 12px; }
+      .category-panel { gap: 8px; justify-content: center; }
+      .chip { font-size: 12px; padding: 6px 10px; }
+      .game-row { flex-direction: column; gap: 8px; }
+      input.answer { font-size: 16px; padding: 12px; border-radius: 10px; }
+      button.check { width: 100%; padding: 12px; font-size: 16px; }
+      .words-list { gap: 6px; }
+      .word-pill { font-size: 12px; padding: 6px 8px; }
+      footer { flex-direction: column; gap: 8px; font-size: 11px; }
+      .dark-mode-toggle { width: 44px; height: 44px; top: 12px; right: 12px; font-size: 1.2em; }
+      .clouds { display: none; }
+    }
+
+    @media (max-width: 360px) {
+      body { padding: 10px; }
+      .wrap { padding: 10px; }
+      h1 { font-size: 18px; }
+      .logo { width: 56px; height: 56px; font-size: 24px; }
+      .big-btn { font-size: 14px; padding: 10px; }
+      .status .big { font-size: 22px; }
     }
 
     /* animations */
