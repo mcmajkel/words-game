@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polish Letter & Category Guessing Game</title>
     <style>
+        :root {
+            --bg-primary: white;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ddd;
+            --primary-color: #667eea;
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --hover-bg: #f0f4ff;
+        }
+
+        body.dark-mode {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border-color: #404040;
+            --primary-color: #7c8dff;
+            --gradient-start: #5568d3;
+            --gradient-end: #6a3a7a;
+            --shadow: rgba(0, 0, 0, 0.7);
+            --hover-bg: #3d3d4d;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,35 +39,39 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .container {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 40px var(--shadow);
             padding: 30px;
             max-width: 900px;
             width: 100%;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
         }
 
         h1 {
             text-align: center;
-            color: #333;
+            color: var(--text-primary);
             margin-bottom: 10px;
             font-size: 2em;
+            transition: color 0.3s ease;
         }
 
         .subtitle {
             text-align: center;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 30px;
             font-size: 1.1em;
+            transition: color 0.3s ease;
         }
 
         .game-layout {
@@ -52,26 +82,29 @@
         }
 
         .section {
-            background: #f8f9fa;
+            background: var(--bg-secondary);
             padding: 20px;
             border-radius: 15px;
+            transition: background 0.3s ease;
         }
 
         .section h2 {
-            color: #667eea;
+            color: var(--primary-color);
             margin-bottom: 15px;
             font-size: 1.3em;
+            transition: color 0.3s ease;
         }
 
         /* Drawing Section */
         canvas {
-            border: 3px solid #667eea;
+            border: 3px solid var(--primary-color);
             border-radius: 10px;
-            background: white;
+            background: var(--bg-primary);
             display: block;
             margin-bottom: 15px;
             cursor: crosshair;
             touch-action: none;
+            transition: background 0.3s ease;
         }
 
         .button-group {
@@ -176,48 +209,54 @@
         }
 
         .status-box {
-            background: white;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 10px;
-            border: 2px solid #667eea;
+            border: 2px solid var(--primary-color);
+            transition: all 0.3s ease;
         }
 
         .status-label {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.9em;
             margin-bottom: 5px;
+            transition: color 0.3s ease;
         }
 
         .status-value {
             font-size: 2em;
             font-weight: bold;
-            color: #667eea;
+            color: var(--primary-color);
+            transition: color 0.3s ease;
         }
 
         .words-list {
-            background: white;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 10px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             margin-bottom: 20px;
             min-height: 100px;
+            transition: all 0.3s ease;
         }
 
         .words-title {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.9em;
             margin-bottom: 10px;
             font-weight: bold;
+            transition: color 0.3s ease;
         }
 
         .word-item {
             display: inline-block;
-            background: #667eea;
+            background: var(--primary-color);
             color: white;
             padding: 8px 12px;
             border-radius: 20px;
             margin: 5px;
             font-size: 1.1em;
+            transition: background 0.3s ease;
         }
 
         .empty-message {
@@ -258,11 +297,12 @@
 
         /* Input Section */
         .input-section {
-            background: white;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 10px;
-            border: 2px solid #667eea;
+            border: 2px solid var(--primary-color);
             margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
         .input-group {
@@ -274,20 +314,23 @@
         #answerInput {
             flex: 1;
             padding: 15px;
-            border: 2px solid #ddd;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1.1em;
             font-family: 'Arial', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         #answerInput:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .check-btn {
-            background: #667eea;
+            background: var(--primary-color);
             color: white;
             padding: 15px 30px;
             border: none;
@@ -328,6 +371,7 @@
             font-weight: bold;
             text-align: center;
             display: none;
+            transition: all 0.3s ease;
         }
 
         .feedback.success {
@@ -337,11 +381,23 @@
             display: block;
         }
 
+        body.dark-mode .feedback.success {
+            background: #1e4620;
+            color: #90ee90;
+            border-color: #90ee90;
+        }
+
         .feedback.error {
             background: #ffe0e0;
             color: #c92a2a;
             border: 2px solid #c92a2a;
             display: block;
+        }
+
+        body.dark-mode .feedback.error {
+            background: #3d1a1a;
+            color: #ff6b6b;
+            border-color: #ff6b6b;
         }
 
         .hints-display {
@@ -351,6 +407,12 @@
             border: 2px solid #ffa94d;
             border-radius: 8px;
             display: none;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .hints-display {
+            background: #3d2d0a;
+            border-color: #ff8c00;
         }
 
         .hints-display.show {
@@ -362,6 +424,10 @@
             margin-bottom: 10px;
         }
 
+        body.dark-mode .hints-display h3 {
+            color: #ffa500;
+        }
+
         .hint-item {
             display: inline-block;
             background: white;
@@ -371,19 +437,27 @@
             border-radius: 20px;
             margin: 5px;
             font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .hint-item {
+            background: #2d2d2d;
+            border-color: #ff8c00;
+            color: #ffa500;
         }
 
         /* Categories Pane */
         .categories-pane {
-            background: white;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 10px;
-            border: 2px solid #667eea;
+            border: 2px solid var(--primary-color);
             margin-bottom: 20px;
+            transition: all 0.3s ease;
         }
 
         .categories-toggle-btn {
-            background: #667eea;
+            background: var(--primary-color);
             color: white;
             padding: 15px;
             border: none;
@@ -426,21 +500,22 @@
             display: flex;
             align-items: center;
             padding: 12px;
-            background: #f8f9fa;
-            border: 2px solid #ddd;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
+            color: var(--text-primary);
         }
 
         .category-checkbox:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
+            border-color: var(--primary-color);
+            background: var(--hover-bg);
         }
 
         .category-checkbox.selected {
-            background: #667eea;
-            border-color: #667eea;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
             color: white;
         }
 
@@ -457,9 +532,36 @@
             flex: 1;
             font-weight: bold;
         }
+
+        /* Dark Mode Toggle Button */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--primary-color);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .dark-mode-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
+    <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">🌙</button>
+
     <div class="container">
         <h1>🎲 Gra w Zgadywanie Słów 🎮</h1>
         <p class="subtitle">Wybierz kategorie, naciśnij przycisk i odgadnij słowo!</p>
@@ -582,6 +684,33 @@
             ubior: '👕 Ubiór',
             sport: '⚽ Sport'
         };
+
+        // Initialize dark mode from localStorage
+        function initDarkMode() {
+            const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (savedDarkMode) {
+                document.body.classList.add('dark-mode');
+                updateDarkModeButton();
+            }
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            updateDarkModeButton();
+        }
+
+        // Update button emoji based on mode
+        function updateDarkModeButton() {
+            const button = document.querySelector('.dark-mode-toggle');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            button.textContent = isDarkMode ? '☀️' : '🌙';
+        }
+
+        // Initialize dark mode on page load
+        window.addEventListener('DOMContentLoaded', initDarkMode);
 
         function toggleCategories() {
             isCategoriesPaneOpen = !isCategoriesPaneOpen;
