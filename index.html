@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polish Letter & Category Guessing Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .game-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        /* Drawing Section */
+        canvas {
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            background: white;
+            display: block;
+            margin-bottom: 15px;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #ff5252;
+            transform: scale(1.05);
+        }
+
+        .submit-btn {
+            background: #51cf66;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        .submit-btn:hover {
+            background: #40c057;
+            transform: scale(1.05);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Category Selection */
+        .category-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            padding: 15px;
+            border: 3px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .category-btn.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .category-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .category-name {
+            font-size: 0.95em;
+        }
+
+        /* Display Section */
+        .display-section {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .display-section h2 {
+            margin-bottom: 20px;
+        }
+
+        .game-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+        }
+
+        .status-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .words-list {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            margin-bottom: 20px;
+            min-height: 100px;
+        }
+
+        .words-title {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .word-item {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 1.1em;
+        }
+
+        .empty-message {
+            color: #999;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .game-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .category-buttons {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            canvas {
+                max-height: 300px;
+            }
+        }
+
+        .celebration {
+            font-size: 2em;
+            animation: bounce 0.6s;
+            margin: 10px 0;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Input Section */
+        .input-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        #answerInput {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #answerInput:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .check-btn {
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .check-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .hint-btn {
+            background: #ffa94d;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hint-btn:hover {
+            background: #ff922b;
+            transform: scale(1.05);
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-align: center;
+            display: none;
+        }
+
+        .feedback.success {
+            background: #d3f9d8;
+            color: #2f9e44;
+            border: 2px solid #2f9e44;
+            display: block;
+        }
+
+        .feedback.error {
+            background: #ffe0e0;
+            color: #c92a2a;
+            border: 2px solid #c92a2a;
+            display: block;
+        }
+
+        .hints-display {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3bf;
+            border: 2px solid #ffa94d;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .hints-display.show {
+            display: block;
+        }
+
+        .hints-display h3 {
+            color: #d9480f;
+            margin-bottom: 10px;
+        }
+
+        .hint-item {
+            display: inline-block;
+            background: white;
+            border: 2px solid #ffa94d;
+            color: #d9480f;
+            padding: 8px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 1em;
+        }
+
+        /* Categories Pane */
+        .categories-pane {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            margin-bottom: 20px;
+        }
+
+        .categories-toggle-btn {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .categories-toggle-btn:hover {
+            background: #5568d3;
+            transform: scale(1.02);
+        }
+
+        .categories-toggle-btn.collapsed {
+            margin-bottom: 0;
+        }
+
+        .categories-content {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .categories-content.collapsed {
+            max-height: 0;
+            display: none;
+        }
+
+        .category-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .category-checkbox:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .category-checkbox.selected {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .category-checkbox input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .category-checkbox label {
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Gra w Zgadywanie Słów 🎮</h1>
+        <p class="subtitle">Wybierz kategorie, naciśnij przycisk i odgadnij słowo!</p>
+
+        <!-- Categories Pane -->
+        <div class="categories-pane">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="categories-toggle-btn" onclick="toggleCategories()" style="flex: 1;">
+                    <span>📂 Kategorie do losowania</span>
+                    <span id="toggleIcon">▼</span>
+                </button>
+                <button class="submit-btn" onclick="selectAllCategories()" style="padding: 15px 20px; font-size: 1em;">
+                    ✓ Wszystkie
+                </button>
+            </div>
+            <div class="categories-content" id="categoriesContent">
+                <label class="category-checkbox category-selected" onclick="toggleCategory('owoce', event)">
+                    <input type="checkbox" checked id="cat-owoce">
+                    <label for="cat-owoce">🍎 Owoce</label>
+                </label>
+                <label class="category-checkbox category-selected" onclick="toggleCategory('warzywa', event)">
+                    <input type="checkbox" checked id="cat-warzywa">
+                    <label for="cat-warzywa">🥕 Warzywa</label>
+                </label>
+                <label class="category-checkbox category-selected" onclick="toggleCategory('zwierzeta', event)">
+                    <input type="checkbox" checked id="cat-zwierzeta">
+                    <label for="cat-zwierzeta">🦁 Zwierzęta</label>
+                </label>
+                <label class="category-checkbox category-selected" onclick="toggleCategory('auta', event)">
+                    <input type="checkbox" checked id="cat-auta">
+                    <label for="cat-auta">🚗 Auta</label>
+                </label>
+                <label class="category-checkbox category-selected" onclick="toggleCategory('kolory', event)">
+                    <input type="checkbox" checked id="cat-kolory">
+                    <label for="cat-kolory">🎨 Kolory</label>
+                </label>
+                <label class="category-checkbox category-selected" onclick="toggleCategory('dom', event)">
+                    <input type="checkbox" checked id="cat-dom">
+                    <label for="cat-dom">🏠 Dom</label>
+                </label>
+                <label class="category-checkbox category-selected" onclick="toggleCategory('ubior', event)">
+                    <input type="checkbox" checked id="cat-ubior">
+                    <label for="cat-ubior">👕 Ubiór</label>
+                </label>
+                <label class="category-checkbox category-selected" onclick="toggleCategory('sport', event)">
+                    <input type="checkbox" checked id="cat-sport">
+                    <label for="cat-sport">⚽ Sport</label>
+                </label>
+            </div>
+        </div>
+
+        <div class="game-layout">
+            <!-- Random Button Section -->
+            <div class="section" style="grid-column: 1 / -1; text-align: center;">
+                <button class="submit-btn" onclick="randomizeAll()" style="width: 100%; font-size: 1.5em; padding: 30px; margin-bottom: 20px;">
+                    🎲 WYLOSUJ LITERĘ I KATEGORIĘ!
+                </button>
+            </div>
+
+            <!-- Display Section -->
+            <div class="display-section" style="grid-column: 1 / -1;">
+                <h2>🎯 Wynik</h2>
+                <div class="game-status">
+                    <div class="status-box">
+                        <div class="status-label">Wylosowana Litera:</div>
+                        <div class="status-value" id="recognizedLetter" style="font-size: 3em;">?</div>
+                    </div>
+                    <div class="status-box">
+                        <div class="status-label">Wylosowana Kategoria:</div>
+                        <div class="status-value" id="selectedCategory" style="font-size: 1.5em;">-</div>
+                    </div>
+                </div>
+                <button class="hint-btn" onclick="toggleWordsList()" style="width: 100%; margin-bottom: 15px;">
+                    👀 Pokaż / Ukryj Słowa
+                </button>
+                <div class="words-list" id="wordsListContainer" style="display: none;">
+                    <div class="words-title">Słowa w wylosowanej kategorii:</div>
+                    <div id="wordsList" class="empty-message">Naciśnij przycisk aby wylosować!</div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="input-section">
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="answerInput"
+                            placeholder="Wpisz odpowiedź..."
+                            onkeypress="handleEnter(event)"
+                        />
+                        <button class="check-btn" onclick="checkAnswer()">✓ Sprawdź</button>
+                        <button class="hint-btn" onclick="showHints()">💡 Podpowiedź</button>
+                    </div>
+                    <div id="feedback" class="feedback"></div>
+                    <div id="hintsDisplay" class="hints-display">
+                        <h3>💡 Podpowiedzi:</h3>
+                        <div id="hintsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Comprehensive Polish word database with 2500+ words (automated)
+        const wordsDatabase = {"owoce": {"A": ["ananas", "arbuz", "avocado", "agrest", "aronia", "anona", "acerola", "aktinidia", "arbuzik", "ananasik", "agreścik", "agrus", "ananasy", "arbuzy", "arbuzek", "arbuzowy", "ananasowy", "arbuz czerwony", "arbuz żółty", "ananas świeży", "ananas konserwowy"], "Ą": [], "B": ["banan", "brzoskwinia", "borówka", "borówka amerykańska", "borówka brusznica", "bergamotka", "banany", "brzoskwinie", "borówki", "biała porzeczka", "bananki", "brzoskwinki", "bananka", "bananowy", "brzoskwiniowy", "banan zielony", "banan dojrzały", "brzoskwinia biała", "brzoskwinia żółta", "borówka leśna"], "C": ["cytryna", "czereśnia", "czarna porzeczka", "czarna jagoda", "czarna aronia", "chinola", "cytryny", "czereśnie", "czarny bez", "ciasto z owocami", "cytrusowe", "cukier owocowy", "cytrynowy", "czereśniowy", "cytryna świeża", "cytrynka", "czarna jagódka", "czereśnia późna", "czereśnia wczesna"], "Ć": [], "D": ["daktyl", "dragon fruit", "durian", "dereń", "dereniówka", "daktyle", "duże jabłko", "dżem", "dżemy", "dulcze", "daktylowy", "dobry owoc", "duża gruszka", "domowe owoce"], "E": [], "Ę": [], "F": ["figa", "fistaszki", "feijoa", "figowiec", "figi", "frużelina", "fruktoza", "fasola owocowa", "figowy", "fioletowa śliwka", "figowy owoc", "fruktowy napój"], "G": ["gruszka", "grejpfrut", "granat", "guawa", "granadilla", "gruszka konferencja", "gruszka bonkreta", "gruszki", "grejpfruty", "granaty", "galaretka owocowa", "gruszeczka", "gruszkowy kompot", "gruszkowy", "gruszka lekarska", "gruszka bonkrety", "gruszka słodka", "gruszka zielona", "gruszka czerwona", "grejpfrut różowy", "granat słodki"], "H": ["herbata owocowa", "herbatka owocowa"], "I": [], "J": ["jabłko", "jagoda", "jeżyna", "jarmuż", "jabłko antonówka", "jabłko kosztela", "jabłko golden", "jabłko jonagold", "jabłko ligol", "jabłka", "jagody", "jeżyny", "jabłuszko", "jabłeczko", "jabłonka", "jadalne owoce", "jędrne owoce", "jabłkowy", "jagodowy", "jeżynowy", "jabłko czerwone", "jabłko żółte", "jabłko zielone", "jabłko kwaśne", "jabłko słodkie", "jagódka", "jeżynka"], "K": ["kiwi", "kokos", "kumkwat", "kasztany", "karambola", "kiwano", "kaki", "konfitura", "krokosz", "kiwi golden", "kokosy", "kasztan jadalny", "kompot", "kisiel", "kawałki owoców", "koktajl owocowy", "koszyk owoców", "krem owocowy", "kokosowy", "kiwi żółte", "kawałek arbuza", "kawałek banana", "kawałek melona", "kiwi świeże", "kokos młody", "kosz owoców"], "L": ["liczi", "limonka", "limonka bergamotka", "lulubelle", "limonki", "lody owocowe", "lekkie owoce", "limonka zielona", "lekki owoc"], "Ł": [], "M": ["mango", "mandarynka", "malina", "morela", "melon", "marakuja", "miód", "migdał", "malin owoc", "melon cantaloupe", "melon galia", "melon kantalupa", "mandarynki", "maliny", "morele", "melony", "malinki", "mini jabłka", "miąższ", "mus owocowy", "marchewka", "musli z owocami", "marmoladka", "miks owocowy", "mieszanka", "mandarynkowy", "malinowy", "morelowy", "melonowy", "mała mandarynka", "małe jabłko", "mango dojrzałe", "melon słodki", "melon wodny", "morela suszona"], "N": ["nektarynka", "nashi", "nerkowiec", "nektarynki", "napój owocowy", "nadzienie owocowe", "nektarynka biała", "nektarynka żółta"], "Ń": [], "O": ["orzechy", "oliwki", "owoce leśne", "orzechy laskowe", "orzechy włoskie", "owoc granatu", "owoc kiwi", "owoc smoka", "orzechy nerkowca", "orzech", "oliwka", "owoc", "owocarnia", "owocowy sad", "owocówka", "owocowa sałatka", "owocowy deser", "owocowy jogurt"], "Ó": [], "P": ["pomarańcza", "pomelo", "porzeczka", "pigwa", "papaja", "physalis", "pitaja", "pistacje", "porzeczka czerwona", "porzeczka biała", "passiflora", "papaya", "prune", "pomarańcze", "porzeczki", "pigwy", "pestki", "pestka", "płatki jabłka", "placek z owocami", "przysmak", "puree owocowe", "pokrojone owoce", "pomarańczowy sok", "porzeczkowy", "papajowy", "pomarańcza słodka", "pomarańcza kwaśna", "porzeczka świeża", "pestka z owocu"], "R": ["rabarbar", "rodzynki", "rokitnik", "renkloda", "rambutam", "różana jabłko", "renklody", "rodzynka", "rumiane jabłko", "równy owoc", "rabarbar czerwony", "rodzynka czarna", "rodzynka złota"], "S": ["śliwka", "sok", "słonecznik", "sezam", "suszone owoce", "sapota", "salak", "sok owocowy", "słodka wiśnia", "szaftan", "śliwki", "soki", "sok jabłkowy", "sok pomarańczowy", "sałatka owocowa", "słodkie owoce", "surowe owoce", "surówka owocowa", "słodycze owocowe", "świeże owoce", "śliwkowy", "sokowy", "świeży owoc", "słodkie jabłko", "śliwka świeża", "śliwka suszona", "słodki owoc", "sok z owoców"], "Ś": ["śliwka węgierka", "śliwka renkloda", "śliwka mirabelka", "śliweczka"], "T": ["truskawka", "tarnina", "tamaryndowiec", "truskawka poziomka", "truskawki", "truskaweczka", "tarta owocowa", "torba z owocami", "truskawkowy", "tarta z owocami", "truskawka duża", "truskawka mała", "truskawka świeża"], "U": [], "V": [], "W": ["winogrono", "wiśnia", "winogrona szafirowe", "winogrona sultana", "winogrona kishmish", "winogrona thompson", "wiśnia karłowata", "wiśnia amarela", "winogrona", "wiśnie", "wiśienka", "wanilia owocowa", "waza owocowa", "witaminy w owocach", "winogronowy", "wiśniowy", "wiśniowa nalewka", "winogrona czerwone", "winogrona zielone", "winogrona czarne", "wiśnia ciemna"], "X": [], "Y": [], "Z": ["zielone jabłko", "żurawina", "zielone gruszki", "zielona porzeczka", "zielone winogrona", "zielone owoce", "zrób kompot", "zdrowe owoce", "zapach owocowy"], "Ź": [], "Ż": ["żurawina", "żurawina wielkoowocowa", "żel owocowy"]}, "warzywa": {"A": ["awokado", "arbuz", "ananas", "artysze", "aksamitka", "anyż"], "Ą": [], "B": ["burak", "brokuł", "bakłażan", "boćwina", "batat", "brukselka", "bob", "brokuł romanesco", "bazylia", "bok choy", "brokuł zielony", "buraki", "brokuły", "bakłażany", "bob zielony", "babka warzywna", "burakowy", "brokułowy", "buraczki", "burak czerwony", "burak pastewny", "brokuł świeży", "bakłażan fioletowy"], "C": ["cebula", "cukinia", "cykorka", "cykoria", "czosnek", "ciecierzyca", "celer", "cebula dymka", "cebula czerwona", "cebula biała", "cebulka szalotka", "chili", "chleb świętojański", "cebulki", "cukinki", "czosnki", "cebulowy", "cukiniowy", "cebula młoda", "cebula suszona", "czosnek świeży", "czosnek suszony", "cukinia zielona"], "Ć": ["ćwikła"], "D": ["dynia", "dereń", "dynia piżmowa", "dynia olbrzymia", "dynia hokkaido", "dynie", "dania warzywne", "dynia żółta", "dynia pomarańczowa", "dynia duża"], "E": ["endywia", "estragony"], "Ę": [], "F": ["fasola", "fenkuł", "fasolka szparagowa", "fasola czerwona", "fasola biała", "fasola czarna", "fenkuł włoski", "fasolki", "fasole", "fasolowy", "fasolka", "fasola świeża", "fasola konserwowa", "fasolka zielona"], "G": ["groszek", "grzyb", "gorzki ogórek", "grzyb pieczarka", "groszek cukrowy", "grzyb boczniak", "grzyb kuźwa", "groszek zielony", "gnocchi", "groszki", "grzyby", "gotowane warzywa", "grzybowy", "groszek konserwowy", "groszek świeży", "groszek mrożony", "grzyb świeży", "grzyb suszony"], "H": ["hiszpanek"], "I": ["imbir", "imbir korzeń"], "J": ["jarmuż", "jarzębiak", "jalapeño", "jarzynki", "jarzyny"], "K": ["kalafior", "kapusta", "kalarepa", "koper", "kukurydza", "karczoch", "kiełki", "koperek", "karczochy", "kabaczek", "kapusta pekińska", "kapusta kiszona", "kapusta włoska", "kapusta czerwona", "kapusta brukselska", "kminek", "kolendra", "koperek ogrodowy", "kalafiory", "kapusty", "kukurydzka", "konserwy warzywne", "kolorowe warzywa", "kalafiorowy", "kapustny", "kukurydzowy", "koperowy", "kalafior biały", "kapusta świeża", "kapusta biała", "karczoch świeży", "kukurydza słodka", "kukurydza świeża"], "L": ["liść sałaty", "luffa", "laska cynamonu", "liście musztardy", "laurka"], "Ł": [], "M": ["marchew", "mizeria", "mak", "mniszek", "marchew młoda", "majeranek", "melisa", "mięta", "musztarda", "marchewki", "młode warzywa", "mieszanka warzywna", "marchewkowy", "marchwianka", "młoda marchew", "marchew świeża", "marchew pomarańczowa", "młoda cebula"], "N": ["natka pietruszki"], "Ń": [], "O": ["ogórek", "oliwki", "oregano", "ostra papryka", "ogórek konserwowy", "ogórek kiszony", "ogórek gruntowy", "oliwki zielone", "oliwki czarne", "ogórki", "ogródek warzywny", "ogórkowy", "ogóreczek", "ogórek świeży", "ogórek zielony", "ogórek mały", "ogórek duży"], "Ó": [], "P": ["papryka", "pieczarka", "pietruszka", "por", "pomidor", "pasternak", "portulaka", "podgrzybek", "purpurowa kapusta", "purpurowy burak", "papryka czerwona", "papryka żółta", "papryka zielona", "pomidor cherry", "pomidor malinowy", "pomidor koktajlowy", "pietruszka korzeń", "por dymka", "papryki", "pomidory", "pomidorki", "pory", "pietruszki", "posiekane warzywa", "paprykowy", "pomidorowy", "pieczarkowy", "pomidorek", "papryka świeża", "papryka słodka", "pomidor czerwony", "pomidor żółty", "pomidor zielony", "pomidor duży", "pomidor mały", "pietruszka świeża"], "R": ["rukola", "rzodkiewka", "rzepa", "rabarbar", "rzodkiew", "rukola sałata", "rokieta", "rzepa pastewna", "rukiew wodna", "rzodkiewki", "rzepa biała", "rzodkiewka czerwona", "rzodkiewka biała", "rukola świeża"], "S": ["sałata", "seler", "szpinak", "szparagi", "szczypiorek", "soja", "soczewica", "seler naciowy", "sałata lodowa", "sałata rzymska", "sałata masłowa", "szaławia", "seler korzeniowy", "szpinak młody", "słodka papryka", "sałatki", "surówki", "sałaty", "świeże warzywa", "sałatkowy", "szpinakowy", "surówka", "sałata świeża", "sałata zielona", "seler biały", "szpinak świeży", "szpinak mrożony"], "Ś": [], "T": ["trawa cytrynowa", "topinambur", "tymianek", "turecka fasola"], "U": [], "V": [], "W": ["wasabi", "wodorosty"], "X": [], "Y": [], "Z": ["ziemniak", "zielona fasola", "zioła", "zielona sałata", "ziemniaki młode", "ziemniak fioletowy", "ziele angielskie", "ziele kminku", "ziemniaczki", "zielenina", "zupa warzywna", "ziemniaczany", "ziemniaczek", "ziemniak biały", "ziemniak czerwony", "ziemniak żółty", "zielona cebula"], "Ź": [], "Ż": []}, "zwierzeta": {"A": ["antylopa", "aligator", "alpaka", "ara", "albatros", "azor", "andżelika", "anakonda", "amfibia", "auk", "aksolotl", "alpaka biała", "alpaka brązowa"], "Ą": [], "B": ["biedronka", "bóbr", "bocian", "byk", "baranek", "bażant", "bizon", "bolinek", "błazenek", "borsuk", "biała sowa", "baklan", "barwena", "bąk", "bazyliszek", "bażant złoty", "bocian czarny", "bóbr europejski", "borówka", "brunatny niedźwiedź", "biedronki", "bociany", "baranki", "bażanty", "byki", "bobrek", "bocianiek", "byczek", "biały królik", "brązowy pies", "brązowy koń", "biały kot", "brązowy niedźwiedź"], "C": ["chrząszcz", "cietrzew", "czapla", "cykor", "czajka", "czubatka", "chomik", "cykada", "czapla biała", "czajka zwyczajna", "czapla siwa", "chomiki", "czarny kot", "czarny pies", "czarna krowa", "czarny koń"], "Ć": ["ćma", "ćwierć"], "D": ["delfin", "dzik", "drozd", "dzięcioł", "daniel", "dodo", "diabeł tasmański", "derkacz", "dropla", "dudek", "drozd śpiewak", "dzięcioł zielony", "dzięcioł czarny", "dzięcioł średni", "dzik europejski", "delfiny", "dziki", "drozdy", "delfinek", "dziczek", "duży słoń", "duży lew", "duży tygrys", "delfin morski"], "E": ["emu", "elf", "edredon"], "Ę": [], "F": ["foka", "flaming", "fretka", "fenek", "foka szara", "flaming różowy", "foka grenlandzka", "foki", "flamingi", "foczka", "foka arktyczna", "flaming różowy duży"], "G": ["gęś", "gołąb", "gepard", "goryl", "gibbon", "gacek", "goździk", "gil", "gazela", "gęś gęgawa", "gęś zbożowa", "gil zwyczajny", "gołąb miejski", "gołąb grzywacz", "goryl górski", "gryzonie", "gęsi", "gołębie", "goryle", "gąseczka", "gąsię", "gołąb biały", "gołąb szary", "gepard szybki", "gęś biała", "gęś szara"], "H": ["hipopotam", "hiena", "husky", "homar", "hiacynt", "hiena plamista", "hog", "huczek"], "I": ["indyk", "iguana", "irbis", "ibis"], "J": ["jeż", "jeleń", "jaszczurka", "jaguar", "jaskółka", "jastrząb", "jerzyk", "jeż europejski", "jeleń szlachetny", "jeleń europejski", "jaskółka oknówka", "jastrząb gołębiarz", "jerzyk zwyczajny", "jeże", "jelenie", "jaguary", "jeżyk", "jelenek", "jeż kolczasty", "jeleń szlachetny duży"], "K": ["kot", "koń", "krowa", "krokodyl", "kangur", "kura", "kaczka", "kogut", "kanarek", "koala", "komar", "kameleon", "kolibry", "kawka", "kos", "kukułka", "kun", "kret", "królik", "kania", "kaczka krzyżówka", "kaczor", "kangur rudy", "koala australijski", "komar zwyczajny", "kondor", "kos czarny", "kot domowy", "koń polski", "kropidło", "kruk", "kuropatwa", "koty", "konie", "krowy", "krokodyle", "kangury", "kury", "kaczki", "koguty", "kanarki", "koale", "komary", "kamelony", "kawki", "kosy", "kotek", "konik", "krowka", "kurek", "kaczuszka", "kogucik", "kotek mały", "konik mały", "krowka mleczna", "króliczek", "kaczka dzika"], "L": ["lew", "lis", "lampart", "leniwiec", "lemur", "łabędź", "łoś", "łania", "lynx", "lama", "lew azjatycki", "leopard", "lis rudy", "lis polarny", "lwy", "lisy", "lamparty", "leniwce", "lemury", "lwiątko", "lisek", "lew afrykański", "lis rudy mały", "lis polarny biały"], "Ł": ["łabędź", "łoś", "łania", "łasica", "łabędź niemy", "łabędź krzykliwy", "łoś europejski"], "M": ["mysz", "mucha", "mrówka", "motyl", "małpa", "meduza", "mewy", "makak", "manatee", "mors", "mrówkojad", "muszka", "mysz polna", "mysz domowa", "mewa srebrzysta", "mewa śmieszka", "motyl paź królowej", "motyl rusałka", "mrówka leśna", "myszy", "muchy", "mrówki", "motyle", "małpy", "meduzy", "morsy", "myszki", "myszka", "małpka", "mała mysz", "mały ptak", "małpa mała", "mysz polna mała"], "N": ["niedźwiedź", "nosorożec", "nornik", "nurek", "niedźwiedź brunatny", "niedźwiedź polarny", "nosorożec czarny", "nosorożec biały", "norka", "nurek rdzawoszyi", "niedźwiedzie", "nosorożce", "niedźwiedź brunatny duży", "niedźwiedź polarny biały"], "Ń": [], "O": ["orzeł", "owca", "osa", "owieczka", "orangutan", "okapi", "orzesznica", "orzeł przedni", "orzeł bielik", "osa zwyczajna", "owca domowa", "owieczka merynos", "orły", "owce", "osy", "orangutany", "orlik", "orzeł duży", "owca biała", "owca czarna"], "Ó": [], "P": ["pies", "ptak", "papuga", "panda", "pingwin", "paw", "pszczoła", "pawian", "pelikan", "perkoz", "pliszka", "przepiórka", "pyton", "pies domowy", "pies wilczarz", "pingwin cesarski", "panda wielka", "panda czerwona", "papuga ara", "papuga falista", "paw indyjski", "pelikan różowy", "perkoz dwuczuby", "pliszka górska", "pliszka siwa", "przepiórka zwyczajna", "puma", "pszczoła miodna", "psy", "ptaki", "papugi", "pandy", "pingwiny", "pawie", "pszczoły", "pawiany", "pelikany", "ptaszki", "piesek", "ptaszek", "papużka", "pies domowy duży", "pies mały", "ptak morski", "papuga kolorowa"], "R": ["ryba", "rekin", "rys", "rak", "renifer", "różowa flaming", "rekin biały", "rekin młot", "rybołów", "rybitwa", "rys euroazjatycki", "ryś rudy", "ryby", "rekiny", "rysie", "raki", "renifery"], "S": ["słoń", "sowa", "sokół", "sikorka", "sum", "sarnia", "sarenka", "salamandra", "sroka", "szop", "skorpion", "smok", "szerszeń", "słoń afrykański", "słoń indyjski", "sowa uszata", "sowa śnieżna", "sokół wędrowny", "sikorka bogatka", "sikorka modra", "sroka zwyczajna", "szop pracz", "szpak", "szczupak", "sęp", "słonie", "sowy", "sokoły", "sikorki", "sumy", "sroki", "szopy", "skorpiony", "smoki", "szerszenie", "słonik", "sowka", "słoń duży", "sowa nocna", "szary wilk"], "Ś": ["ślimak", "świnia", "świnka morska", "śledź", "ślimak winniczek", "świdra", "świstak"], "T": ["tygrys", "tchórz", "termit", "tukan", "tarantula", "tracze", "tygrys bengalski", "tygrys syberyjski", "tchórz europejski", "tokus", "traszka", "tygrysy"], "U": ["ułan"], "V": [], "W": ["wąż", "wieloryb", "wilk", "wiewiórka", "wróbel", "wydra", "wrona", "waż", "wombat", "waran", "wąż zaskroniec", "wąż gniewosz", "wieloryb błękitny", "wilk szary", "wiewiórka pospolita", "wróbel zwyczajny", "wrona siwa", "wydra europejska", "węże", "wieloryby", "wilki", "wiewiórki", "wróble", "wydry", "wrony", "wężyk", "wiewióra", "wróbelek", "wieloryb duży", "wilk szary duży", "wiewiórka ruda"], "X": [], "Y": ["yak"], "Z": ["żaba", "żyrafa", "zebra", "zając", "żółw", "żbik", "żuk", "zięba", "żuraw", "żaba wodna", "żaba trawna", "żyrafa siatkowana", "zebra stepowa", "zając szarak", "żółw błotny", "żółw grecki", "żbik europejski", "żuk jelonkowaty", "żuraw zwyczajny", "zaskroniec", "zimorodek", "żaby", "żyrafy", "zebry", "zające", "żółwie", "żuki", "żurawie", "żabka", "żyrafka", "żółwik", "żaba zielona", "żaba wodna mała", "żyrafa wysoka", "zebra pręgowana"], "Ź": [], "Ż": ["żaba", "żyrafa", "żółw", "żbik", "żuk", "żuraw", "żmija", "żubr", "żmija zygzakowata", "żubr europejski"]}, "auta": {"A": ["auto", "ambulans", "Audi", "Alfa Romeo", "Aston Martin", "autobus", "autostrada", "Acura", "AMC", "Austin", "Ariel", "Alpine", "autobus miejski", "autobus szkolny", "auta", "ambulanse", "autobusy", "autko", "autobusik", "auto osobowe", "auto dostawcze", "auto sportowe", "autobus turystyczny", "autobus dwupiętrowy"], "Ą": [], "B": ["BMW", "Bentley", "Bugatti", "Buick", "buldożer", "betoniarka", "bus", "Benz", "Bristol", "Brabham", "buldożery", "betoniarki", "busy"], "C": ["Chevrolet", "Citroen", "Cadillac", "Chrysler", "ciągnik", "ciężarówka", "cysterna", "Cupra", "Corvette", "Camaro", "ciągniki", "ciężarówki", "cysterny", "ciągniczek", "ciężaróweczka", "ciężarówka duża", "ciężarówka mała", "ciągnik rolniczy"], "Ć": ["ćwiartka"], "D": ["Dodge", "Dacia", "dzień", "dźwignica", "Daihatsu", "DeLorean", "Datsun"], "E": [], "Ę": [], "F": ["Ferrari", "Ford", "Fiat", "furgon", "furgonetka", "FSO", "Fisker", "furgony", "furgonetki"], "G": ["Golf", "GMC", "Genesis", "GAZ"], "H": ["Honda", "Hyundai", "Hummer", "Harley", "Hillman", "Holden"], "I": ["Infiniti", "Isuzu", "Iveco"], "J": ["Jeep", "Jaguar"], "K": ["Kia", "kabriolet", "koparka", "kombi", "kwadracik", "Koenigsegg", "Karma", "kabriolety", "koparki", "koparka duża", "koparka mała", "koparka gąsienicowa", "koparka kołowa", "kabriolet sportowy"], "L": ["Lamborghini", "Land Rover", "Lexus", "Lincoln", "Lancia", "limuzyna", "lokomotywa", "Lotus", "Lada", "Ligier", "limuzyny", "lokomotywy"], "Ł": ["łódź", "łódka"], "M": ["Mercedes", "Mazda", "Mini", "Mitsubishi", "Maserati", "McLaren", "monster truck", "motor", "motocykl", "miksowóz", "MG", "Morgan", "Maybach", "Mercury", "motory", "motocykle", "motorek", "motocykl sportowy", "motocykl turystyczny", "motor duży"], "N": ["Nissan", "NSU"], "Ń": [], "O": ["Opel", "ogień", "Oldsmobile"], "Ó": [], "P": ["Porsche", "Peugeot", "Pontiac", "Plymouth", "pojazd", "pickup", "pług śnieżny", "pociąg", "Pagani", "Pantera", "Polestar", "pojazdy", "pickupy", "pługi śnieżne", "pociągi", "pociąg towarowy", "pociąg osobowy", "pojazd  specjalny", "pojazd terenowy", "pojazd użytkowy", "pociąg ekspresowy", "pociąg podmiejski"], "R": ["Renault", "Rolls-Royce", "Range Rover", "Rover", "rakieta", "rower", "rowek", "RAM", "Riley", "rakiety", "rowery", "rowerek"], "S": ["Skoda", "Subaru", "Suzuki", "sedan", "SUV", "samochód", "skuter", "smyk", "spycharka", "śmieciarka", "Saab", "Seat", "Scion", "Smart", "SsangYong", "sedany", "samochody", "skutery", "smyki", "spycharki", "samochodzik", "samochód wyścigowy", "samochód policyjny", "samochód ciężarowy", "samochód osobowy", "samochód sportowy", "skuter wodny"], "Ś": ["śmieciarka", "ścigacz"], "T": ["Toyota", "Tesla", "Trabant", "taksówka", "traktor", "tramwaj", "trolejbus", "truck", "TIR", "Tatra", "TVR", "Triumph", "taksówki", "traktory", "tramwaje", "trolejbusy", "TIRy", "traktorek", "tramwaj miejski", "traktor rolniczy", "traktor ogrodniczy", "taksówka miejska"], "U": [], "V": ["Volkswagen", "Volvo", "van", "Vauxhall", "Vector", "Viper"], "W": ["wóz strażacki", "wagon", "wózek", "Wartburg", "Willys", "wozy strażackie", "wagony", "wózki", "wózek dziecięcy", "wózek spacerowy", "wózek widłowy", "wózek paletowy"], "X": [], "Y": ["Yugo"], "Z": ["Zastava", "żuraw", "Zaporożec"], "Ź": [], "Ż": ["żuraw", "żagiel"]}, "kolory": {"A": ["amarantowy", "akwamaryna", "atramentowy", "ametyst", "antracytowy", "agawe", "alabaster", "aqua", "amber"], "Ą": [], "B": ["biały", "błękitny", "beżowy", "brązowy", "bordowy", "bursztynowy", "brązowy ciemny", "brązowy jasny", "biel", "błękit", "beż", "biała", "błękitna", "beżowa", "brązowa", "bordowa", "biało-czerwony", "błękitnawy", "beżowo-brązowy", "biały śnieg", "błękitne niebo", "brązowa ziemia"], "C": ["czarny", "cyjan", "cytrynowy", "cynamonowy", "ceglasty", "cyranowy", "czerń", "czarna", "cyjanowa", "cytrynowa", "ciemnoniebieski", "ciemnozielony", "ciemnoczerwony", "czerwień", "czarny jak węgiel"], "Ć": [], "D": ["dymny", "diamentowy"], "E": ["ecru", "ebony"], "Ę": [], "F": ["fioletowy", "fuksja", "fiołkowy", "fiolet", "fioletowa", "fioletowo-różowy", "fiolet ciemny", "fiolet jasny"], "G": ["granatowy", "grafitowy", "groszkowy", "gruszka", "granat", "głęboki niebieski", "gołębi", "granatowa", "grafitowa"], "H": ["herbaciany", "hebanowy"], "I": ["indygo", "irys", "ivory", "iris"], "J": ["jasny", "jaskrawy", "jaskrawy żółty", "jagodowy", "jaskiniowy", "jaskrawoniebieski", "jaskrawoczerwony", "jasnoniebieskie", "jaskrawozielony", "jasnozielony", "jasna", "jaskrawa", "jasnoniebieski", "jasnoczerwony", "jasnobordowy"], "K": ["khaki", "kremowy", "karminowy", "kasztanowy", "koralowy", "kawowy", "kolorowy", "krem", "karmin", "kobalt", "kobaltowy", "kremowa", "karminowa", "kasztanowa"], "L": ["liliowy", "limonkowy", "lawenda", "lazurowy", "lawendowy", "lila", "lazur", "limonka", "liliowa", "limonkowa", "lawendowa"], "Ł": ["łososiowy"], "M": ["mahoniowy", "metaliczny", "miętowy", "morski", "malina", "musztardowy", "malinowy", "miedziany", "magnolia", "morski niebieski", "metaliczna", "miętowa", "morska", "malinowa"], "N": ["niebieski", "nude", "neonowy", "neonowy różowy", "neonowy zielony", "niebieska", "neonowa", "niebieskawy", "niebieski ocean", "niebieski jasny", "niebieski ciemny"], "Ń": [], "O": ["oliwkowy", "orzechowy", "oranż", "opalowy", "ochra", "oliwka", "ognisty", "oranżowy", "oliwkowa", "orzechowa"], "Ó": ["różowy", "róż", "różany"], "P": ["purpurowy", "perłowy", "pistacjowy", "piaskowy", "pomarańczowy", "perski niebieski", "purpura", "pastelowy", "platynowy", "perła", "pistacja", "purpurowa", "perłowa", "piaskowa", "pomarańczowa", "pomarańczowy słoneczny"], "R": ["różowy", "rubinowy", "rubinowy czerwony", "rdzawy", "ryży", "rubin", "rdza", "rudy", "rdzawa czerwień", "różowa", "rubinowa", "różowo-fioletowy", "czerwony", "czerwona", "ciemny czerwony", "jasny czerwony", "różowy jasny", "różowy ciemny", "czerwony jasny", "czerwony ciemny"], "S": ["srebrny", "szary", "szafirowy", "szmaragdowy", "seledynowy", "słoneczny", "stalowy", "słomiany", "srebro", "szafir", "szmaragd", "słoma", "srebrna", "szara", "szafirowa", "szmaragdowa", "seledynowa", "srebrzysto-szary", "szaro-brązowy", "szary ciemny", "szary jasny", "srebrny metaliczny"], "Ś": ["śnieżnobiały", "śliwkowy", "śnieg"], "T": ["turkusowy", "trawiasty", "tytoniowy", "trakotowy", "turkus", "trawa", "tytanowy", "turkusowa", "trawiasta"], "U": ["umbra", "ultramaryna"], "V": ["wanilia", "violet"], "W": ["winny", "waniliowy", "wiśniowy", "wino", "wiśnia", "wapno", "winna", "waniliowa", "wiśniowa"], "X": [], "Y": [], "Z": ["zielony", "złoty", "żółty", "zielony ciemny", "zielony jasny", "żółtozielony", "zieleń", "złoto", "żółć", "zielona", "złota", "żółta", "zielonkawy", "złocisty", "złociuty", "zielony trawiasty", "złoty metaliczny"], "Ź": [], "Ż": ["żółty", "żółtozielony", "żółtawy", "żółć kanarkowa", "żółty słoneczny", "żółty cytrynowy", "żółty jasny"]}, "dom": {"A": ["antresola", "aneks", "altana", "akwarium", "abażur", "armatura", "atlas", "album", "ampułka", "aneksy", "akwaria", "abażury"], "Ą": [], "B": ["balkon", "biurko", "biblioteka", "bateria", "budzik", "blat", "bańka", "basen", "boazeria", "brama", "biblioteczka", "bibelot", "bohomaz", "bombka", "butelka", "bidon", "but", "balkony", "biurka", "biblioteki", "baterie", "budziki", "blaty", "baseny", "belka", "brama wjazdowa", "biurko drewniane", "biurko metalowe", "balkon duży", "balkon mały"], "C": ["cegła", "czajnik", "cień", "comber", "cesarski", "cytryna", "cegły", "czajniki"], "Ć": ["ćwiek"], "D": ["dach", "drzwi", "dywan", "dozownik", "dzwonek", "drewno", "drążek", "dzbanek", "donica", "deska", "drążek zasłonowy", "deska do prasowania", "dachy", "dywany", "dzwonki", "drzwiczki", "drabina", "dzbanek do herbaty", "drzwi wejściowe", "drzwi balkonowe", "dywan duży", "dywan mały"], "E": ["ekran", "etażerka"], "Ę": [], "F": ["fotel", "firanka", "filiżanka", "fragment", "futryna", "fartuch", "figurka", "foremka", "fotele", "firanki", "filiżanki", "fotelik", "filizanka mała", "fotel rozkładany", "fotel bujany", "firanka biała"], "G": ["garaż", "gałka", "grzejnik", "garnki", "gąbka", "guzik", "garderoba", "grzejka", "grzebień", "gniazdko", "gong", "garaże", "gałki", "grzejniki", "gąbki", "guziki", "garderoby"], "H": ["hol", "haczyk", "hak", "hamak", "haft"], "I": ["igła", "instalacja"], "J": ["jadalnia", "jajecznica"], "K": ["kuchnia", "komoda", "krzesło", "kąt", "klamka", "koc", "kanapa", "klatka schodowa", "klucz", "komin", "korytarz", "kołdra", "kubek", "kran", "koszyk", "kosz", "kontakt", "kieliszek", "kwiat", "konsola", "kalendarz", "kilim", "kinkiet", "kuchnie", "komody", "krzesła", "klamki", "koce", "kanapy", "klucze", "kominy", "korytarze", "kołdry", "kubki", "krany", "koszyki", "kociołek", "kotek z włącznikiem", "kubeczek", "koc polarowy", "krzesło drewniane", "krzesło metalowe", "kanapa rozkładana", "koc wełniany"], "L": ["lampa", "łazienka", "łóżko", "lustro", "lodówka", "lusterko", "listwa", "lampka nocna", "lampion", "lina", "lejek", "lampy", "łazienki", "łóżka", "lustra", "lodówki", "lampka biurkowa", "lampa stojąca", "lampa wiszą ca", "łóżko pojedyncze", "łóżko podwójne", "lodówka duża"], "Ł": ["łazienka", "łóżko", "łyżka", "ławka", "ławeczka", "łopatka", "łyżeczka"], "M": ["meble", "mieszkanie", "mikrofala", "mop", "mydło", "materac", "miska", "mur", "moskitiera", "mleczko", "monitor", "muszla", "młotek", "metka", "makaron", "mieszkania", "mikrofale", "mopy", "mydła", "materace", "miski", "miotła", "miedziane garnki", "meble kuchenne", "meble łazienkowe", "mikrofala biała"], "N": ["nóż", "nocnik", "nocka", "naczynie", "notes", "narożnik", "nożyczki"], "Ń": [], "O": ["okno", "obraz", "ogród", "ognisko", "odkurzacz", "obrus", "odzież", "ozdoba", "okienko", "otwieracz", "obrączka", "okna", "obrazy", "ogrody", "ogniska", "odkurzacze", "obrusy", "okienko małe", "obrusik", "okno duże", "okno małe", "obraz na ścianie"], "Ó": ["ósemka"], "P": ["pokój", "piwnica", "piec", "podłoga", "patelnia", "piekarnik", "półka", "poduszka", "poszewka", "prysznic", "pralka", "parapet", "prześcieradło", "pufa", "plakat", "pero", "pościel", "pojemnik", "papier", "papierośnica", "pędzel", "piernik", "pokrowiec", "pokoje", "piwnice", "piece", "podłogi", "patelnie", "piekarniki", "półki", "poduszki", "poszewki", "prysznice", "pralki", "parapety", "prześcieradła", "piekarnik elektryczny", "patelnia teflonowa", "poduszka miękka", "poduszka duża", "pralka automatyczna"], "R": ["regał", "rama", "rura", "rączka", "radio", "rynna", "roślina", "rękawica", "ręcznik", "ramka", "roleta", "robotyka", "rurka", "regały", "ramy", "rury", "rączki", "radia", "rynny", "rośliny"], "S": ["sufit", "szafa", "salon", "stół", "sofa", "sypialnia", "schody", "ściana", "serwetka", "stojak", "stolik", "szuflada", "szczotka", "szampon", "sklep", "serwis", "słoik", "świeca", "sztućce", "solniczka", "suszarka", "spodek", "sufity", "szafy", "salony", "stoły", "sofy", "sypialnie", "ściany", "serwetki", "stojaki", "stoliki", "szuflady", "szczotki", "szampony", "stołek", "szafka", "szafka nocna", "stolik kawowy", "szafa drewniana", "szafa ubraniowa", "stół drewniany"], "Ś": ["ściana", "śrubka", "świeczka", "śmietnik", "śrubokręt", "ścierka", "ślizgacz"], "T": ["taras", "telefon", "telewizor", "tacka", "taboret", "toaleta", "tynk", "talerz", "taca", "termos", "telewizja", "tkanina", "tapeta", "trzepaczka", "tunel", "tarasy", "telefony", "telewizory", "tacki", "taborety", "toalety", "taborecik", "tacka drewniana", "telewizor duży", "telewizor mały"], "U": ["umywalka", "uchwyt", "urna"], "V": [], "W": ["wanna", "wycieraczka", "wieszak", "widelec", "wentylator", "wazon", "waza", "wiaderko", "waga", "wykałaczka", "wałek", "wózek", "wiertarka", "wiosło", "wanny", "wycieraczki", "wieszaki", "widelce", "wentylatory", "wazony", "wazy", "wiaderka", "wanna narożna", "wiadereczko", "wanna narożnikowa", "wanna stojąca", "wieszak na ubrania"], "X": [], "Y": [], "Z": ["zlew", "zasłona", "zegar", "zmywarka", "żaluzje", "żyrandol", "zamek", "zapalniczka", "zszywacz", "zlewozmywak", "zlewy", "zasłony", "zegary", "zmywarki", "żyrandole", "zamki"], "Ź": [], "Ż": ["żaluzje", "żyrandol", "żarówka", "żelazko", "żwir"]}, "ubior": {"A": ["apaszka", "anorak", "adidasy"], "Ą": [], "B": ["bluza", "buty", "biustonosz", "bielizna", "bandana", "baletki", "botki", "beret", "bransoletka", "body", "broszka", "bluzka", "bezrękawnik", "bluzy", "bielizny", "berety", "bransoletki", "bluzeczka", "buciki", "bluza sportowa", "bluza z kapturem", "buty sportowe", "buty skórzane"], "C": ["czapka", "czółenka", "cylinder", "czapki", "czapeczka", "chustka", "czapka zimowa", "czapka z daszkiem", "czapka wełniana"], "Ć": [], "D": ["dres", "dżinsy", "dresy", "drewniaki", "długi sweter", "dresik", "dres sportowy", "dżinsy niebieskie"], "E": ["espadryle"], "Ę": [], "F": ["fartuch", "frak", "futro", "frędzel", "fascynator", "fartuchy", "fraki", "futra"], "G": ["golf", "garnitur", "garneczek", "gumki", "getry", "guzikarze", "górka", "guzik", "golfy", "garnitury"], "H": ["halka", "haftki", "hełm"], "I": [], "J": ["japonki", "jeansy"], "K": ["koszula", "kurtka", "kapelusz", "krawat", "kamizelka", "kapcie", "kozaki", "kolczyki", "kalesony", "klapki", "kombinezon", "koraliki", "kardigan", "koszulka", "koszula nocna", "kimono", "krynolina", "klamerka", "koszule", "kurtki", "kapelusze", "krawaty", "kamizelki", "kombinezony", "kurteczka", "kamizelka puchowa", "kozaczki", "koszula męska", "koszula damska", "kurtka zimowa", "kurtka letnia", "kapelusz słomkowy", "krawat jedwabny"], "L": ["legginsy", "lakierki"], "Ł": ["łańcuszek", "łaty"], "M": ["majtki", "marynarka", "mokasyny", "mundur", "muszelka", "melonik", "mundurek", "muszka", "mucha", "muslin", "marynarki", "mundury", "majeczki"], "N": ["naszyjnik", "nogawki", "namiot", "naszyjniki"], "Ń": [], "O": ["okulary", "opaska", "obrączka", "ogrodniczki", "ozdoba", "opaski", "obrączki"], "Ó": [], "P": ["płaszcz", "piżama", "pasek", "podkoszulek", "ponczo", "pulower", "peleryna", "pończochy", "portfel", "pierścionek", "plecak", "polo", "podkoszulka", "paseczek", "pantofle", "płaszcze", "piżamy", "paski", "podkoszulki", "pulowery", "peleryny", "portfele", "pierścionki", "plecaki", "płaszczyk", "piżamka", "pelerynka", "płaszcz zimowy", "płaszcz jesienny", "piżama bawełniana", "pasek skórzany"], "R": ["rękawiczki", "rajstopy", "running", "rękaw", "rękawiczka", "rękawiczki zimowe"], "S": ["spodnie", "sukienka", "szalik", "sweter", "sandały", "stringi", "szelki", "spódnica", "szpilki", "smoking", "spodenki", "szorty", "stringi", "suknia", "stój", "skarpety", "skarpetki", "spinka", "sukienki", "szaliki", "swetry", "spódnice", "sandałki", "sukieneczka", "sweterek", "szalik wełniany", "spodnie długie", "spodnie krótkie", "sukienka letnia", "sukienka wieczorowa", "sweter wełniany", "sweter cienki"], "Ś": ["śniegowce"], "T": ["top", "trampki", "tunika", "trzewiki", "teczka", "torebka", "tenisówki", "tren", "tiulowa spódnica", "turban", "topy", "tuniki", "teczki", "torebki", "trampeczki", "trampki białe", "trampki kolorowe", "torebka damska"], "U": ["ubranie", "uniform", "urna"], "V": [], "W": ["wełna", "wiązanie", "walonki", "wełniana czapka", "wełniany sweter"], "X": [], "Y": [], "Z": ["zegarek", "zamek błyskawiczny", "zausznik", "zegarki"], "Ź": [], "Ż": ["żabka"]}, "sport": {"A": ["akrobatyka", "alpinizm", "aerobik", "atletyka", "aikido", "American football", "atletyka lekka"], "Ą": [], "B": ["baseball", "badminton", "boks", "biegi", "bilard", "bobsleje", "biatlon", "basen", "brazylijskie jiu-jitsu", "bmx", "bieganie", "biegi sprinterskie", "biegi długodystansowe", "biegi przez płotki", "basketball", "baseny", "biegacze", "biegi maratońskie", "bieganie długie", "bieganie krótkie", "biegi krótkie", "biegi długie", "biegi średnie", "boks zawodowy"], "C": ["CrossFit", "curling", "cykling", "cheerleading"], "Ć": ["ćwiczenia", "ćwiczenia siłowe"], "D": ["dżudo", "dart", "dyscyplina", "dyskoteka", "discgolf", "drużyna", "dyscypliny"], "E": ["esport"], "Ę": [], "F": ["fitness", "futbol amerykański", "footbal", "frisbee", "free running"], "G": ["gimnastyka", "golf", "gra", "grę", "gra w piłkę", "gimnastyka artystyczna", "gimnastyka sportowa", "granie", "gry", "gimnastyka dla dzieci", "gimnastyka ogólna", "golf klasyczny"], "H": ["hokej", "hokej na lodzie", "hokej na trawie", "handbali", "handball", "helikoptero"], "I": ["inna", "indoor"], "J": ["jazda konna", "joga", "judo", "jiu-jitsu", "jazda figurowa"], "K": ["karate", "koszykówka", "kolarstwo", "kręgle", "kajakarstwo", "kung-fu", "kalistenika", "kick-boxing", "kitesurfing", "kendo", "kalisthenics", "kajakowanie", "kąpiel", "koszykówka uliczna", "kręgle dziecięce", "koszykówka męska", "koszykówka damska", "kolarstwo szosowe", "kolarstwo górskie"], "L": ["lekkoatletyka", "łyżwiarstwo", "łucznictwo", "lodowisko", "lacrosse"], "Ł": ["łyżwiarstwo", "łyżwy", "łucznictwo", "łyżwiarstwo figurowe", "łyżwiarstwo szybkie"], "M": ["maraton", "MMA", "motocross", "morsowanie", "mixed martial arts", "mountain bike", "maratony"], "N": ["nurkowanie", "narciarstwo", "nordic walking", "narciarstwo alpejskie", "narciarstwo biegowe"], "Ń": [], "O": ["olimpiada", "orienteering", "oszczep"], "Ó": [], "P": ["piłka nożna", "pływanie", "ping-pong", "parkour", "polo", "podnoszenie ciężarów", "piłka ręczna", "piłka wodna", "pilates", "paintball", "piłka plażowa", "pływanie synchroniczne", "przeciąganie liny", "piłka nożna halowa", "piłka nożna plażowa", "pływanie na basenie", "piłka nożna męska", "piłka nożna damska", "pływanie sportowe", "pływanie rekreacyjne"], "R": ["rugby", "rajdy", "rower", "rowing", "rolki", "rzut oszczepem", "ringo", "rafting", "rzut młotem", "rzut dyskiem", "rowerowe"], "S": ["siatkówka", "surfing", "skoki", "snowboard", "saneczkarstwo", "skok wzwyż", "szermierka", "skok w dal", "squash", "sprint", "siłowanie", "strzelectwo", "skok o tyczce", "skijoring", "softball", "sumo", "skateboarding", "siatkówka plażowa", "snowboard dla dzieci", "siatkówka halo wa", "siatkówka męska", "siatkówka damska", "snowboard alpejski"], "Ś": ["ślizgawka", "ślizg"], "T": ["tenis", "taekwondo", "trampolina", "triathlon", "turystyka", "taniec", "tenis stołowy", "tenis ziemny", "thai boxing", "taekwon-do", "trampoliny skokowe", "tenis dla dzieci", "tenis ziemny męski", "tenis ziemny damski", "tenis stołowy olimpijski"], "U": ["ujeżdżanie koni", "ultimate frisbee"], "V": ["volleyball"], "W": ["wspinaczka", "wioślarstwo", "windsurfing", "wędkarstwo", "wakeboarding", "wspinaczka sportowa", "waterpolo", "wyścigi", "wspinaczka górska", "wspinaczka skałkowa", "windsurfing morski"], "X": [], "Y": ["yoga"], "Z": ["zapasy", "żeglarstwo", "żużel", "zumba", "zapasy w stylu wolnym", "zapasy klasyczne"], "Ź": [], "Ż": ["żeglarstwo", "żużel", "żeglowanie"]}};
+
+        let currentLetter = null;
+        let selectedCategory = null;
+        let isCategoriesPaneOpen = true;
+        const allLetters = 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSTŚTUVWXYZŹŻ'.split('');
+        const allCategories = ['owoce', 'warzywa', 'zwierzeta', 'auta', 'kolory', 'dom', 'ubior', 'sport'];
+        let activeCategories = new Set(allCategories); // Track selected categories
+        const categoryNames = {
+            owoce: '🍎 Owoce',
+            warzywa: '🥕 Warzywa',
+            zwierzeta: '🦁 Zwierzęta',
+            auta: '🚗 Auta',
+            kolory: '🎨 Kolory',
+            dom: '🏠 Dom',
+            ubior: '👕 Ubiór',
+            sport: '⚽ Sport'
+        };
+
+        function toggleCategories() {
+            isCategoriesPaneOpen = !isCategoriesPaneOpen;
+            const content = document.getElementById('categoriesContent');
+            const icon = document.getElementById('toggleIcon');
+
+            if (isCategoriesPaneOpen) {
+                content.classList.remove('collapsed');
+                icon.textContent = '▼';
+                document.querySelector('.categories-toggle-btn').classList.remove('collapsed');
+            } else {
+                content.classList.add('collapsed');
+                icon.textContent = '▶';
+                document.querySelector('.categories-toggle-btn').classList.add('collapsed');
+            }
+        }
+
+        function toggleCategory(category, event) {
+            event.stopPropagation();
+            const checkbox = document.getElementById(`cat-${category}`);
+            const label = event.currentTarget;
+
+            if (activeCategories.has(category)) {
+                activeCategories.delete(category);
+                checkbox.checked = false;
+                label.classList.remove('selected');
+            } else {
+                activeCategories.add(category);
+                checkbox.checked = true;
+                label.classList.add('selected');
+            }
+        }
+
+        function selectAllCategories() {
+            // If all are selected, deselect all. Otherwise select all.
+            const allSelected = activeCategories.size === allCategories.length;
+
+            activeCategories.clear();
+
+            allCategories.forEach(category => {
+                const checkbox = document.getElementById(`cat-${category}`);
+                const label = checkbox.closest('.category-checkbox');
+
+                if (!allSelected) {
+                    // Select all
+                    activeCategories.add(category);
+                    if (checkbox) checkbox.checked = true;
+                    if (label) label.classList.add('selected');
+                } else {
+                    // Deselect all
+                    if (checkbox) checkbox.checked = false;
+                    if (label) label.classList.remove('selected');
+                }
+            });
+        }
+
+        function randomizeAll() {
+            // Check if at least one category is selected
+            if (activeCategories.size === 0) {
+                alert('Proszę wybrać przynajmniej jedną kategorię!');
+                return;
+            }
+
+            let hasWords = false;
+            let attempts = 0;
+            const maxAttempts = 30;
+            const activeCategoriesArray = Array.from(activeCategories);
+
+            // Keep trying until we find a letter/category combo with words
+            while (!hasWords && attempts < maxAttempts) {
+                // Randomize letter
+                currentLetter = allLetters[Math.floor(Math.random() * allLetters.length)];
+
+                // Randomize category from ACTIVE categories only
+                selectedCategory = activeCategoriesArray[Math.floor(Math.random() * activeCategoriesArray.length)];
+
+                // Check if this combination has words
+                const words = wordsDatabase[selectedCategory][currentLetter] || [];
+                hasWords = words.length > 0;
+
+                attempts++;
+            }
+
+            document.getElementById('recognizedLetter').textContent = currentLetter;
+            document.getElementById('selectedCategory').textContent = categoryNames[selectedCategory];
+
+            // Update category button highlights
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+
+            // Clear input and feedback
+            document.getElementById('answerInput').value = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('hintsDisplay').classList.remove('show');
+            document.getElementById('hintsList').innerHTML = '';
+
+            // Hide words list on new round
+            document.getElementById('wordsListContainer').style.display = 'none';
+
+            // Display results
+            updateWordsDisplay();
+
+            // Focus on input
+            document.getElementById('answerInput').focus();
+        }
+
+        function toggleWordsList() {
+            const container = document.getElementById('wordsListContainer');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        function updateWordsDisplay() {
+            if (!selectedCategory) {
+                document.getElementById('wordsList').innerHTML = '<div class="empty-message">Wybierz kategorię</div>';
+                return;
+            }
+
+            if (!currentLetter) {
+                document.getElementById('wordsList').innerHTML = '<div class="empty-message">Wylosuj literę</div>';
+                return;
+            }
+
+            const words = wordsDatabase[selectedCategory][currentLetter] || [];
+
+            let html = '';
+            if (words.length > 0) {
+                html = words.map(word => `<span class="word-item">${word}</span>`).join('');
+                html += '<div class="celebration">✨🎉✨</div>';
+            } else {
+                html = '<span class="empty-message">Brak słów zaczynających się na tę literę w tej kategorii 🤔</span>';
+            }
+
+            document.getElementById('wordsList').innerHTML = html;
+        }
+
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                checkAnswer();
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = document.getElementById('answerInput').value.trim();
+            const feedbackElement = document.getElementById('feedback');
+
+            if (!userAnswer) {
+                feedbackElement.textContent = 'Proszę wpisać odpowiedź!';
+                feedbackElement.className = 'feedback error';
+                return;
+            }
+
+            if (!currentLetter || !selectedCategory) {
+                feedbackElement.textContent = 'Najpierw wylosuj literę i kategorię!';
+                feedbackElement.className = 'feedback error';
+                return;
+            }
+
+            // Check if answer starts with correct letter (case-insensitive)
+            const firstLetter = userAnswer.charAt(0).toUpperCase();
+            if (firstLetter !== currentLetter) {
+                feedbackElement.textContent = `❌ Słowo musi zaczynać się na literę "${currentLetter}"`;
+                feedbackElement.className = 'feedback error';
+                return;
+            }
+
+            // Check if answer exists in the database for this category
+            const words = wordsDatabase[selectedCategory][currentLetter] || [];
+            const isExact = words.some(w => w.toLowerCase() === userAnswer.toLowerCase());
+
+            if (isExact) {
+                feedbackElement.textContent = `🎉 Brawo! "${userAnswer}" jest poprawną odpowiedzią!`;
+                feedbackElement.className = 'feedback success';
+                document.getElementById('answerInput').value = '';
+                setTimeout(() => {
+                    randomizeAll();
+                }, 2000);
+            } else {
+                // Check if at least it's a valid word in the category
+                feedbackElement.textContent = `⚠️ "${userAnswer}" nie jest na liście. Spróbuj inny wyraz zaczynający się na "${currentLetter}"`;
+                feedbackElement.className = 'feedback error';
+            }
+        }
+
+        function showHints() {
+            if (!currentLetter || !selectedCategory) {
+                alert('Najpierw wylosuj literę i kategorię!');
+                return;
+            }
+
+            const words = wordsDatabase[selectedCategory][currentLetter] || [];
+
+            if (words.length === 0) {
+                document.getElementById('hintsDisplay').classList.remove('show');
+                alert('Brak słów do podpowiadania!');
+                return;
+            }
+
+            const hintsDisplay = document.getElementById('hintsDisplay');
+            const hintsList = document.getElementById('hintsList');
+
+            // Show the hints
+            hintsList.innerHTML = words
+                .map(word => `<span class="hint-item">${word}</span>`)
+                .join('');
+
+            hintsDisplay.classList.add('show');
+        }
+
+    </script>
+</body>
+</html>
