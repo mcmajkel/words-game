@@ -11,6 +11,7 @@ A fun, interactive learning game for 5-year-old children to guess Polish words b
 - **Hint System:** Click "Podpowiedź" (Hint) button to see all available words
 - **Answer Validation:** Game checks if the answer starts with the correct letter and exists in the category
 - **Auto-Advance:** Moves to next round automatically after correct answer
+- **Dark Mode:** Toggle between light and dark themes with persistent preference storage
 - **Beautiful UI:** Colorful, kid-friendly interface with smooth animations
 - **Fully Responsive:** Works on mobile, tablet, and desktop
 
@@ -158,9 +159,8 @@ Created for educational purposes. Free to use, modify, and distribute.
 - [ ] Add difficulty levels
 - [ ] Include more categories
 - [ ] Add more word variations
-- [ ] Implement local storage for preferences
-- [ ] Add dark mode
 - [ ] Multi-language support
+- [ ] Add timer/speed challenges
 
 ## 👤 Author
 
